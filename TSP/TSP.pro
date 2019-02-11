@@ -26,10 +26,12 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-    window.cpp
+    window.cpp \
+    bruteforce.cpp
 
 HEADERS += \
-    window.h
+    window.h \
+    bruteforce.h
 
 FORMS +=
 

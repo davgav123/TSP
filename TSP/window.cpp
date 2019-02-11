@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QMessageBox>
 #include <QTime>
 #include <QString>
 #include <QGraphicsTextItem>
@@ -6,8 +7,10 @@
 #include <QFile>
 #include <QTextStream>
 #include <QLineF>
+#include <QPen>
 
 #include "window.h"
+#include "bruteforce.h"
 
 #include <QDebug>
 
@@ -31,6 +34,7 @@ Window::Window()
     startBtn = new QPushButton("Start");
     startBtn->resize(100, 50);
     startBtn->move(700, 550);
+    startBtn->setDisabled(true);
     startBtn->setStyleSheet("background-color: green;");
     m_scene->addWidget(startBtn);
     connect(startBtn, SIGNAL(clicked()), this, SLOT(solve()));
@@ -57,22 +61,55 @@ Window::Window()
 void Window::solve()
 {
     qDebug() << "solving...";
+
+    // for now we only have brute force
+    BruteForce bf("../TSP/adjacencyMatrix.txt");
+    bf.solve();
+
+    QVector<int> bestPath = bf.bestPath();
+    int bestDist = bf.minDistance();
+
+    qDebug() << "-----------------------------";
+    qDebug() << bestPath << " -> " << bestDist;
+    qDebug() << "-----------------------------";
+
+    // color the best path in red
+    QPen red(Qt::red, 5);
+    for (int i = 1; i < bestPath.size(); ++i) {
+        m_scene->addLine(QLine(m_vertices[bestPath[i-1]], m_vertices[bestPath[i]]), red);
+    }
+    m_scene->addLine(QLine(m_vertices[bestPath[bestPath.size()-1]], m_vertices[bestPath[0]]), red);
 }
 
 void Window::generateGraph()
 {
     qDebug() << "generating...";
 
+    removeGraph();
+//    generateBtn->setDisabled(true);
     srand(unsigned(QTime(0, 0, 0).secsTo(QTime::QTime::currentTime())));
 
     generatePositions();
     drawEdges();
-    drawVerices();
+    drawVertices();
+
+    // we can try to solve it now
+    startBtn->setDisabled(false);
 }
 
 void Window::exit()
 {
-    QApplication::exit();
+    qDebug() << "Quit?";
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?", "Quit?",
+                                    QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+      qDebug() << "Yes!";
+      QApplication::quit();
+    } else {
+      qDebug() << "No!";
+    }
 }
 
 void Window::generatePositions()
@@ -86,7 +123,7 @@ void Window::generatePositions()
 
 void Window::drawEdges()
 {
-    // also, we will create file with adjacency matrix here
+    // also, here we will create text file with adjacency matrix
     QFile file(QString("../TSP/adjacencyMatrix.txt"));
     file.open(QFile::WriteOnly);
 
@@ -104,7 +141,7 @@ void Window::drawEdges()
                 m_scene->addLine(m_vertices[i].x(), m_vertices[i].y(),
                                  m_vertices[j].x(), m_vertices[j].y());
 
-            output << int(QLineF(m_vertices[i], m_vertices[j]).length()) << " ";
+            output << int(qRound(QLineF(m_vertices[i], m_vertices[j]).length() / 10)) << " ";
         }
 
         output << endl;
@@ -113,14 +150,19 @@ void Window::drawEdges()
     file.close();
 }
 
-void Window::drawVerices()
+void Window::drawVertices()
 {
     int radius = 30;
     for (int i = 0; i < m_vertices.size(); ++i) {
         QGraphicsEllipseItem *vertex = m_scene->addEllipse(
                     m_vertices[i].x() - radius/2, m_vertices[i].y() - radius/2, radius, radius);
         vertex->setBrush(QBrush(Qt::white));
-        QGraphicsTextItem *vertexNum = m_scene->addText(QString::number(i+1));
+        QGraphicsTextItem *vertexNum = m_scene->addText(QString::number(i));
         vertexNum->setPos(m_vertices[i].x()-radius/3, m_vertices[i].y()-radius/3);
     }
+}
+
+void Window::removeGraph()
+{
+    // TODO
 }

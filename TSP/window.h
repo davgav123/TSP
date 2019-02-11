@@ -22,7 +22,9 @@ private slots:
 private: // member functions
     void generatePositions();
     void drawEdges();
-    void drawVerices();
+    void drawVertices();
+
+    void removeGraph();
 
 private:
     QGraphicsScene *m_scene;
