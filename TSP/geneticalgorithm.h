@@ -17,13 +17,15 @@ public:
 
     void optimize();
 
+    int minDistance() const;
+    QVector<int> bestPath() const;
+
 private: // member functions
-    bool stopCondition();
+    bool stopCondition(int i);
     int fitness(const QVector<int> &chromo);
 
     QVector<Phenotype> initialPopulation();
     QVector<Phenotype> selection(const QVector<Phenotype> &population);
-    // tournament? TODO
     QVector<Phenotype> createGeneration(const QVector<Phenotype> &forReproduction);
 
     void mutation(Phenotype &p);

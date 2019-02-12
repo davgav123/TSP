@@ -8,7 +8,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QLineF>
-#include <QPen>
 #include <QFont>
 
 #include "window.h"
@@ -88,25 +87,40 @@ void Window::solve()
 
     // color the best path in red
     QPen red(Qt::red, 5);
-    for (int i = 1; i < bestPath.size(); ++i) {
-        m_scene->addLine(QLine(m_vertices[bestPath[i-1]], m_vertices[bestPath[i]]), red);
-    }
-    m_scene->addLine(QLine(m_vertices[bestPath[bestPath.size()-1]], m_vertices[bestPath[0]]), red);
+    drawPath(bestPath, red);
 
     // add info about brute force solution
     QGraphicsTextItem *txtBruteForce = m_scene->addText(
                 "BruteForce: shortest path is " + QString::number(bestDist) +
                 ". Time: " + QString::number(bfElapsedTimeMS) + " ms");
-    txtBruteForce->setPos(10, 560); // <- change font TODO
+    txtBruteForce->setPos(10, 570);
+
+    // set font of the brute force info text
     QFont f;
     f.setPointSize(13);
     txtBruteForce->setFont(f);
 
     // genetic algorithm -------------------------------
     GeneticAlgorithm ga("../TSP/adjacencyMatrix.txt");
-    ga.optimize();
 
-    // TODO
+    QTime gaTimer;
+    gaTimer.start();
+    ga.optimize();
+    int gaElapsedTimeMS = gaTimer.elapsed();
+
+    bestPath = ga.bestPath();
+    bestDist = ga.minDistance();
+
+    // color the path in blue
+    QPen blue(Qt::blue, 5);
+    drawPath(bestPath, blue);
+
+    // informations about genetic algorithm solution
+    QGraphicsTextItem *txtGenAlg = m_scene->addText(
+                "GeneticAlgorithm: shortest path is " + QString::number(bestDist) +
+                ". Time: " + QString::number(gaElapsedTimeMS) + " ms");
+    txtGenAlg->setPos(10, 600);
+    txtGenAlg->setFont(f);
 }
 
 void Window::generateGraph()
@@ -193,4 +207,12 @@ void Window::drawVertices()
         QGraphicsTextItem *vertexNum = m_scene->addText(QString::number(i));
         vertexNum->setPos(m_vertices[i].x()-radius/3, m_vertices[i].y()-radius/3);
     }
+}
+
+void Window::drawPath(QVector<int> path, QPen pen)
+{
+    for (int i = 1; i < path.size(); ++i) {
+        m_scene->addLine(QLine(m_vertices[path[i-1]], m_vertices[path[i]]), pen);
+    }
+    m_scene->addLine(QLine(m_vertices[path[path.size()-1]], m_vertices[path[0]]), pen);
 }

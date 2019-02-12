@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QVector>
 #include <QPoint>
+#include <QPen>
 
 class Window : public QGraphicsView
 {
@@ -24,6 +25,7 @@ private: // member functions
     void generatePositions();
     void drawEdges();
     void drawVertices();
+    void drawPath(QVector<int> path, QPen pen);
 
 private:
     QGraphicsScene *m_scene;

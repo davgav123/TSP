@@ -33,27 +33,41 @@ GeneticAlgorithm::GeneticAlgorithm(QString fileName)
     m_populationSize = m_length / 2;
     m_mutationRate = 0.02;
 
-    m_numOfIters = 50;
+    m_numOfIters = 10;
 }
 
 void GeneticAlgorithm::optimize()
 {
     QVector<Phenotype> population = initialPopulation();
 
-    while (stopCondition()) {
-        QString s = "TODO";
-        // select for reproduction
-        // create new generation
-        // evaluate
+    int i = 0;
+    while (stopCondition(i)) {
+        QVector<Phenotype> forReproduction = selection(population);
+        population = createGeneration(forReproduction);
 
-        // take the best one
+        m_best = *std::min_element(population.cbegin(), population.cend(),
+                                  [] (Phenotype p1, Phenotype p2) {return p1.fit < p2.fit;});
+        i++;
     }
 
-
+    qDebug() << m_best.chromosome << " " << m_best.fit;
 }
 
-bool GeneticAlgorithm::stopCondition()
+int GeneticAlgorithm::minDistance() const
 {
+    return m_best.fit;
+}
+
+QVector<int> GeneticAlgorithm::bestPath() const
+{
+    return m_best.chromosome;
+}
+
+bool GeneticAlgorithm::stopCondition(int i)
+{
+    if (i < m_numOfIters)
+        return true;
+
     return false;
 }
 
@@ -63,7 +77,7 @@ int GeneticAlgorithm::fitness(const QVector<int> &chromo)
     for (int i = 1; i < chromo.size(); ++i) {
         distance += m_weights[chromo[i-1]][chromo[i]];
     }
-
+    // add the distance between last and first node
     distance += m_weights[chromo[chromo.size()-1]][chromo[0]];
 
     return distance;
@@ -86,4 +100,15 @@ QVector<Phenotype> GeneticAlgorithm::initialPopulation()
         qDebug() << p.chromosome << " " << p.fit;
 
     return pop;
+}
+
+QVector<Phenotype> GeneticAlgorithm::selection(const QVector<Phenotype> &population)
+{
+    // roulette selection TODO
+    return population;
+}
+
+QVector<Phenotype> GeneticAlgorithm::createGeneration(const QVector<Phenotype> &forReproduction)
+{
+    return forReproduction;
 }
