@@ -13,12 +13,13 @@
 
 #include "window.h"
 #include "bruteforce.h"
+#include "geneticalgorithm.h"
 
 #include <QDebug>
 
 Window::Window()
 {
-    m_numOfVerices = 11;
+    m_numOfVerices = 9;
     m_vertices.resize(m_numOfVerices);
 
     // create scene
@@ -71,7 +72,7 @@ void Window::solve()
     qDebug() << "solving...";
     startBtn->setDisabled(true);
 
-    // for now we only have brute force
+    // brute force -------------------------------
     BruteForce bf("../TSP/adjacencyMatrix.txt");
     QTime bfTimer;
     bfTimer.start();
@@ -100,6 +101,12 @@ void Window::solve()
     QFont f;
     f.setPointSize(13);
     txtBruteForce->setFont(f);
+
+    // genetic algorithm -------------------------------
+    GeneticAlgorithm ga("../TSP/adjacencyMatrix.txt");
+    ga.optimize();
+
+    // TODO
 }
 
 void Window::generateGraph()
@@ -136,8 +143,6 @@ void Window::restart()
 {
     QApplication::quit();
     QProcess::startDetached(QApplication::arguments()[0], QApplication::arguments());
-
-    delete this;
 }
 
 void Window::generatePositions()

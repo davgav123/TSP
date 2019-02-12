@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
     window.cpp \
-    bruteforce.cpp
+    bruteforce.cpp \
+    geneticalgorithm.cpp
 
 HEADERS += \
     window.h \
-    bruteforce.h
+    bruteforce.h \
+    geneticalgorithm.h
 
 FORMS +=
 
