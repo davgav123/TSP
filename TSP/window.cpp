@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QProcess>
 #include <QMessageBox>
 #include <QTime>
 #include <QString>
@@ -8,6 +9,7 @@
 #include <QTextStream>
 #include <QLineF>
 #include <QPen>
+#include <QFont>
 
 #include "window.h"
 #include "bruteforce.h"
@@ -16,6 +18,9 @@
 
 Window::Window()
 {
+    m_numOfVerices = 11;
+    m_vertices.resize(m_numOfVerices);
+
     // create scene
     m_scene = new QGraphicsScene(this);
     m_scene->setSceneRect(0, 0, 800, 650);
@@ -24,7 +29,7 @@ Window::Window()
     setFixedSize(800, 650);
 
     m_scene->setBackgroundBrush(QBrush(Qt::gray, Qt::SolidPattern));
-    m_scene->addLine(0, 500, 800, 500);
+    m_scene->addLine(0, 550, 800, 550);
 
     // scroll disabled
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -48,23 +53,30 @@ Window::Window()
 
     generateBtn = new QPushButton("Generate");
     generateBtn->resize(100, 50);
-    generateBtn->move(700, 500);
-    generateBtn->setStyleSheet("background-color: yellow;");
+    generateBtn->move(600, 550);
+    generateBtn->setStyleSheet("background-color: orange;");
     m_scene->addWidget(generateBtn);
     connect(generateBtn, SIGNAL(clicked()), this, SLOT(generateGraph()));
 
-    // the number of vertices will be changed... TODO
-    m_numOfVerices = 6;
-    m_vertices.resize(m_numOfVerices);
+    restartBtn = new QPushButton("Restart");
+    restartBtn->resize(100, 50);
+    restartBtn->move(600, 600);
+    restartBtn->setStyleSheet("background-color: yellow;");
+    m_scene->addWidget(restartBtn);
+    connect(restartBtn, SIGNAL(clicked()), this, SLOT(restart()));
 }
 
 void Window::solve()
 {
     qDebug() << "solving...";
+    startBtn->setDisabled(true);
 
     // for now we only have brute force
     BruteForce bf("../TSP/adjacencyMatrix.txt");
+    QTime bfTimer;
+    bfTimer.start();
     bf.solve();
+    int bfElapsedTimeMS = bfTimer.elapsed();
 
     QVector<int> bestPath = bf.bestPath();
     int bestDist = bf.minDistance();
@@ -79,14 +91,22 @@ void Window::solve()
         m_scene->addLine(QLine(m_vertices[bestPath[i-1]], m_vertices[bestPath[i]]), red);
     }
     m_scene->addLine(QLine(m_vertices[bestPath[bestPath.size()-1]], m_vertices[bestPath[0]]), red);
+
+    // add info about brute force solution
+    QGraphicsTextItem *txtBruteForce = m_scene->addText(
+                "BruteForce: shortest path is " + QString::number(bestDist) +
+                ". Time: " + QString::number(bfElapsedTimeMS) + " ms");
+    txtBruteForce->setPos(10, 560); // <- change font TODO
+    QFont f;
+    f.setPointSize(13);
+    txtBruteForce->setFont(f);
 }
 
 void Window::generateGraph()
 {
     qDebug() << "generating...";
 
-    removeGraph();
-//    generateBtn->setDisabled(true);
+    generateBtn->setDisabled(true);
     srand(unsigned(QTime(0, 0, 0).secsTo(QTime::QTime::currentTime())));
 
     generatePositions();
@@ -112,11 +132,19 @@ void Window::exit()
     }
 }
 
+void Window::restart()
+{
+    QApplication::quit();
+    QProcess::startDetached(QApplication::arguments()[0], QApplication::arguments());
+
+    delete this;
+}
+
 void Window::generatePositions()
 {
     for (int i = 0; i < m_vertices.size(); ++i) {
-        int x = rand() % 700 + 50;
-        int y = rand() % 400 + 50;
+        int x = rand() % 700 + 70;
+        int y = rand() % 450 + 70;
         m_vertices[i] = QPoint(x, y);
     }
 }
@@ -160,9 +188,4 @@ void Window::drawVertices()
         QGraphicsTextItem *vertexNum = m_scene->addText(QString::number(i));
         vertexNum->setPos(m_vertices[i].x()-radius/3, m_vertices[i].y()-radius/3);
     }
-}
-
-void Window::removeGraph()
-{
-    // TODO
 }

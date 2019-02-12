@@ -18,13 +18,12 @@ private slots:
     void solve();
     void generateGraph();
     void exit();
+    void restart();
 
 private: // member functions
     void generatePositions();
     void drawEdges();
     void drawVertices();
-
-    void removeGraph();
 
 private:
     QGraphicsScene *m_scene;
@@ -36,6 +35,7 @@ private:
     QPushButton *startBtn;
     QPushButton *exitBtn;
     QPushButton *generateBtn;
+    QPushButton *restartBtn;
 
 };
 
