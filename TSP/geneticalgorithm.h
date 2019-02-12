@@ -28,8 +28,10 @@ private: // member functions
     QVector<Phenotype> selection(const QVector<Phenotype> &population);
     QVector<Phenotype> createGeneration(const QVector<Phenotype> &forReproduction);
 
-    void mutation(Phenotype &p);
-    QPair<Phenotype, Phenotype> crossover(const Phenotype &p1, const Phenotype &p2);
+    void mutation(QVector<int> &p);
+    QPair<QVector<int>, QVector<int>> crossover(const QVector<int> &p1, const QVector<int> &p2);
+
+    QVector<int> createChild(int pos1, int pos2, int size, const QVector<int> &p1, const QVector<int> &p2);
 
 private:
     QVector<QVector<int>> m_weights;

@@ -18,7 +18,7 @@
 
 Window::Window()
 {
-    m_numOfVerices = 9;
+    m_numOfVerices = 12;
     m_vertices.resize(m_numOfVerices);
 
     // create scene
@@ -86,7 +86,7 @@ void Window::solve()
     qDebug() << "-----------------------------";
 
     // color the best path in red
-    QPen red(Qt::red, 5);
+    QPen red(Qt::red, 8);
     drawPath(bestPath, red);
 
     // add info about brute force solution
@@ -112,7 +112,7 @@ void Window::solve()
     bestDist = ga.minDistance();
 
     // color the path in blue
-    QPen blue(Qt::blue, 5);
+    QPen blue(Qt::yellow, 3);
     drawPath(bestPath, blue);
 
     // informations about genetic algorithm solution

@@ -29,11 +29,15 @@ GeneticAlgorithm::GeneticAlgorithm(QString fileName)
     file.close();
 
     // initialize parameters for genetic algorithm
-    m_best = {{}, INT_MAX};
-    m_populationSize = m_length / 2;
+    m_populationSize = 22;
     m_mutationRate = 0.02;
 
-    m_numOfIters = 10;
+    // the best one will be 0..numOfVerices in the first iteration
+    QVector<int> initBest(m_length);
+    std::iota(initBest.begin(), initBest.end(), 0);
+    m_best = {initBest, fitness(initBest)};
+
+    m_numOfIters = 200;
 }
 
 void GeneticAlgorithm::optimize()
@@ -48,9 +52,9 @@ void GeneticAlgorithm::optimize()
         m_best = *std::min_element(population.cbegin(), population.cend(),
                                   [] (Phenotype p1, Phenotype p2) {return p1.fit < p2.fit;});
         i++;
+        qDebug() << m_best.chromosome << " " << m_best.fit;
     }
 
-    qDebug() << m_best.chromosome << " " << m_best.fit;
 }
 
 int GeneticAlgorithm::minDistance() const
@@ -77,7 +81,7 @@ int GeneticAlgorithm::fitness(const QVector<int> &chromo)
     for (int i = 1; i < chromo.size(); ++i) {
         distance += m_weights[chromo[i-1]][chromo[i]];
     }
-    // add the distance between last and first node
+    // add the distance between last and first vertex
     distance += m_weights[chromo[chromo.size()-1]][chromo[0]];
 
     return distance;
@@ -96,9 +100,6 @@ QVector<Phenotype> GeneticAlgorithm::initialPopulation()
         pop[i].fit = fitness(pop[i].chromosome);
     }
 
-    for (const auto & p : pop)
-        qDebug() << p.chromosome << " " << p.fit;
-
     return pop;
 }
 
@@ -110,5 +111,97 @@ QVector<Phenotype> GeneticAlgorithm::selection(const QVector<Phenotype> &populat
 
 QVector<Phenotype> GeneticAlgorithm::createGeneration(const QVector<Phenotype> &forReproduction)
 {
-    return forReproduction;
+    QVector<Phenotype> newPopulation(m_populationSize);
+    newPopulation[0] = m_best;
+    newPopulation[1] = m_best;
+    for (int i = 2; i < m_populationSize; i=i+2) {
+        int parentPos1 = rand() % m_populationSize;
+        int parentPos2 = rand() % m_populationSize;
+
+        QPair<QVector<int>, QVector<int>> children =
+                crossover(forReproduction[parentPos1].chromosome, forReproduction[parentPos2].chromosome);
+        mutation(children.first);
+        mutation(children.second);
+
+        newPopulation[i] = {children.first, fitness(children.first)};
+        newPopulation[i+1] = {children.second, fitness(children.second)};
+    }
+
+    return newPopulation;
 }
+
+void GeneticAlgorithm::mutation(QVector<int> &p)
+{
+    double mutate = double(rand()) / RAND_MAX;
+    if (mutate < m_mutationRate) {
+        int n = p.length();
+        int pos1 = rand() % n;
+        int pos2 = rand() % n;
+
+        // mutation will just swap two elements
+        int tmp = p[pos1];
+        p[pos1] = p[pos2];
+        p[pos2] = tmp;
+    }
+}
+
+QPair<QVector<int>, QVector<int> > GeneticAlgorithm::crossover(const QVector<int> &p1, const QVector<int> &p2)
+{
+    QPair<QVector<int>, QVector<int>> children;
+
+    int n = p1.size();
+    int a = rand() % n;
+    int b = rand() % n;
+
+    int pos1 = (a <= b) ? a : b;
+    int pos2 = (a > b) ? a : b;
+//    qDebug() << pos1 << " " << pos2;
+
+    children.first = createChild(pos1, pos2, n, p1, p2);
+    children.second = createChild(pos1, pos2, n, p2, p1);
+
+//    qDebug() << p1 << " " << p2;
+//    qDebug() << children;
+    return children;
+}
+
+QVector<int> GeneticAlgorithm::createChild(int pos1, int pos2, int size, const QVector<int> &p1, const QVector<int> &p2)
+{
+    QVector<int> child(size);
+    child.fill(INT_MAX);
+    for (int i = pos1; i < pos2; ++i) {
+        child[i] = p1[i];
+    }
+
+    int input = pos2;
+    for (int i = pos2; i < size; ++i) {
+        if (! child.contains(p2[i])) {
+            child[input] = p2[i];
+            input++;
+        }
+    }
+
+    for (int i = 0; i < pos2; ++i) {
+        if (input == size)
+            input = 0;
+
+        if (! child.contains(p2[i])) {
+            child[input] = p2[i];
+            input++;
+        }
+    }
+
+    return child;
+}
+
+
+
+
+
+
+
+
+
+
+
+
