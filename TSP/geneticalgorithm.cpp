@@ -29,11 +29,11 @@ GeneticAlgorithm::GeneticAlgorithm(QString fileName)
     file.close();
 
     // initialize parameters for genetic algorithm
-    m_populationSize = 16;
-    m_mutationRate = 0.02;
-    m_tournamentK = m_populationSize;
+    m_populationSize = 26;
+    m_mutationRate = 0.05;
+    m_tournamentK = m_populationSize / 2;
 
-    m_numOfIters = 500;
+    m_numOfIters = 700;
 }
 
 void GeneticAlgorithm::optimize()
@@ -50,9 +50,9 @@ void GeneticAlgorithm::optimize()
         m_best = *std::min_element(population.cbegin(), population.cend(),
                                   [] (Phenotype p1, Phenotype p2) {return p1.fit < p2.fit;});
         i++;
-        qDebug() << m_best.chromosome << " " << m_best.fit;
     }
 
+    qDebug() << m_best.chromosome << " " << m_best.fit;
 }
 
 int GeneticAlgorithm::minDistance() const
@@ -105,7 +105,7 @@ QVector<Phenotype> GeneticAlgorithm::initialPopulation()
 QVector<Phenotype> GeneticAlgorithm::selection(const QVector<Phenotype> &population)
 {
     QVector<Phenotype> forReproduction;
-    for(int i = 0, n = population.size(); i < n; ++i) {
+    for(int i = 0; i < population.size(); ++i) {
         forReproduction.push_back(pickOneTournament(population));
     }
 

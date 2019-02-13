@@ -7,6 +7,7 @@
 #include <QVector>
 #include <QPoint>
 #include <QPen>
+#include <QSpinBox>
 
 class Window : public QGraphicsView
 {
@@ -38,6 +39,8 @@ private:
     QPushButton *exitBtn;
     QPushButton *generateBtn;
     QPushButton *restartBtn;
+
+    QSpinBox *sbNumOfVertices;
 
 };
 

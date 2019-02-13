@@ -18,9 +18,6 @@
 
 Window::Window()
 {
-    m_numOfVertices = 10;
-    m_vertices.resize(m_numOfVertices);
-
     // create scene
     m_scene = new QGraphicsScene(this);
     m_scene->setSceneRect(0, 0, 800, 650);
@@ -29,7 +26,6 @@ Window::Window()
     setFixedSize(800, 650);
 
     m_scene->setBackgroundBrush(QBrush(Qt::gray, Qt::SolidPattern));
-    m_scene->addLine(0, 550, 800, 550);
 
     // scroll disabled
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -40,30 +36,68 @@ Window::Window()
     startBtn->resize(100, 50);
     startBtn->move(700, 550);
     startBtn->setDisabled(true);
-    startBtn->setStyleSheet("background-color: green;");
+    startBtn->setStyleSheet("background-color: green; font-weight: bold; font-size: 16px;");
     m_scene->addWidget(startBtn);
     connect(startBtn, SIGNAL(clicked()), this, SLOT(solve()));
 
     exitBtn = new QPushButton("Exit");
     exitBtn->resize(100, 50);
     exitBtn->move(700, 600);
-    exitBtn->setStyleSheet("background-color: red;");
+    exitBtn->setStyleSheet("background-color: red; font-weight: bold; font-size: 16px;");
     m_scene->addWidget(exitBtn);
     connect(exitBtn, SIGNAL(clicked()), this, SLOT(exit()));
 
     generateBtn = new QPushButton("Generate");
     generateBtn->resize(100, 50);
     generateBtn->move(600, 550);
-    generateBtn->setStyleSheet("background-color: orange;");
+    generateBtn->setStyleSheet("background-color: orange; font-weight: bold; font-size: 16px;");
     m_scene->addWidget(generateBtn);
     connect(generateBtn, SIGNAL(clicked()), this, SLOT(generateGraph()));
 
     restartBtn = new QPushButton("Restart");
     restartBtn->resize(100, 50);
     restartBtn->move(600, 600);
-    restartBtn->setStyleSheet("background-color: yellow;");
+    restartBtn->setStyleSheet("background-color: yellow; font-weight: bold; font-size: 16px;");
     m_scene->addWidget(restartBtn);
     connect(restartBtn, SIGNAL(clicked()), this, SLOT(restart()));
+
+    // font for labels
+    QFont labelFont;
+    labelFont.setPointSize(14);
+
+    // add labels on top
+    QGraphicsTextItem *bfLegend = m_scene->addText("Brute force solution");
+    bfLegend->setFont(labelFont);
+    bfLegend->setPos(10, 5);
+
+    // color for the brute force
+    QGraphicsRectItem *bfColor = m_scene->addRect(200, 10, 25, 25);
+    bfColor->setBrush(QBrush(Qt::red));
+
+    QGraphicsTextItem *gaLegend = m_scene->addText("Optimization solution");
+    gaLegend->setFont(labelFont);
+    gaLegend->setPos(250, 5);
+
+    // color for the genetic algorithm
+    QGraphicsRectItem *gaColor = m_scene->addRect(460, 10, 25, 25);
+    gaColor->setBrush(QBrush(Qt::yellow));
+
+    // add user input
+    sbNumOfVertices = new QSpinBox();
+    sbNumOfVertices->setRange(6, 12);
+    sbNumOfVertices->move(500, 570);
+    sbNumOfVertices->setFixedSize(100, 80);
+    labelFont.setPointSize(42);
+    sbNumOfVertices->setFont(labelFont);
+    m_scene->addWidget(sbNumOfVertices);
+
+    // number of nodes
+    QGraphicsTextItem *bla = m_scene->addText("Number of nodes");
+    QFont selectFont;
+    selectFont.setPointSize(8);
+    selectFont.setBold(true);
+    bla->setFont(selectFont);
+    bla->setPos(495, 550);
 }
 
 void Window::solve()
@@ -80,10 +114,6 @@ void Window::solve()
 
     QVector<int> bestPath = bf.bestPath();
     int bestDist = bf.minDistance();
-
-    qDebug() << "-----------------------------";
-    qDebug() << bestPath << " -> " << bestDist;
-    qDebug() << "-----------------------------";
 
     // color the best path in red
     QPen red(Qt::red, 8);
@@ -129,6 +159,10 @@ void Window::generateGraph()
 
     generateBtn->setDisabled(true);
     srand(unsigned(QTime(0, 0, 0).secsTo(QTime::QTime::currentTime())));
+
+    m_numOfVertices = sbNumOfVertices->value();
+    m_vertices.resize(m_numOfVertices);
+    sbNumOfVertices->setDisabled(true);
 
     generatePositions();
     drawEdges();
