@@ -31,7 +31,7 @@ private:
     QGraphicsScene *m_scene;
 
     QVector<QPoint> m_vertices;
-    int m_numOfVerices;
+    int m_numOfVertices;
 
     // widgets
     QPushButton *startBtn;

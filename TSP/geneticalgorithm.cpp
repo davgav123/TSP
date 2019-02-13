@@ -29,20 +29,18 @@ GeneticAlgorithm::GeneticAlgorithm(QString fileName)
     file.close();
 
     // initialize parameters for genetic algorithm
-    m_populationSize = 22;
+    m_populationSize = 16;
     m_mutationRate = 0.02;
+    m_tournamentK = m_populationSize;
 
-    // the best one will be 0..numOfVerices in the first iteration
-    QVector<int> initBest(m_length);
-    std::iota(initBest.begin(), initBest.end(), 0);
-    m_best = {initBest, fitness(initBest)};
-
-    m_numOfIters = 200;
+    m_numOfIters = 500;
 }
 
 void GeneticAlgorithm::optimize()
 {
     QVector<Phenotype> population = initialPopulation();
+    m_best = *std::min_element(population.cbegin(), population.cend(),
+                              [] (Phenotype p1, Phenotype p2) {return p1.fit < p2.fit;});
 
     int i = 0;
     while (stopCondition(i)) {
@@ -103,10 +101,27 @@ QVector<Phenotype> GeneticAlgorithm::initialPopulation()
     return pop;
 }
 
+// tournament selection
 QVector<Phenotype> GeneticAlgorithm::selection(const QVector<Phenotype> &population)
 {
-    // roulette selection TODO
-    return population;
+    QVector<Phenotype> forReproduction;
+    for(int i = 0, n = population.size(); i < n; ++i) {
+        forReproduction.push_back(pickOneTournament(population));
+    }
+
+    return forReproduction;
+}
+
+Phenotype GeneticAlgorithm::pickOneTournament(const QVector<Phenotype> &pop)
+{
+    Phenotype best{{}, INT_MAX};
+    for(int i = 0; i < m_tournamentK; ++i) {
+        int pos = rand() % pop.size();
+        if(pop[pos].fit < best.fit){
+            best = pop[pos];
+        }
+    }
+    return best;
 }
 
 QVector<Phenotype> GeneticAlgorithm::createGeneration(const QVector<Phenotype> &forReproduction)
@@ -145,6 +160,7 @@ void GeneticAlgorithm::mutation(QVector<int> &p)
     }
 }
 
+// ORDER 1 crossover
 QPair<QVector<int>, QVector<int> > GeneticAlgorithm::crossover(const QVector<int> &p1, const QVector<int> &p2)
 {
     QPair<QVector<int>, QVector<int>> children;
@@ -155,13 +171,10 @@ QPair<QVector<int>, QVector<int> > GeneticAlgorithm::crossover(const QVector<int
 
     int pos1 = (a <= b) ? a : b;
     int pos2 = (a > b) ? a : b;
-//    qDebug() << pos1 << " " << pos2;
 
     children.first = createChild(pos1, pos2, n, p1, p2);
     children.second = createChild(pos1, pos2, n, p2, p1);
 
-//    qDebug() << p1 << " " << p2;
-//    qDebug() << children;
     return children;
 }
 

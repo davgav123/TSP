@@ -18,8 +18,8 @@
 
 Window::Window()
 {
-    m_numOfVerices = 12;
-    m_vertices.resize(m_numOfVerices);
+    m_numOfVertices = 10;
+    m_vertices.resize(m_numOfVertices);
 
     // create scene
     m_scene = new QGraphicsScene(this);
@@ -180,7 +180,7 @@ void Window::drawEdges()
     }
 
     QTextStream output(&file);
-    output << m_numOfVerices << endl;
+    output << m_numOfVertices << endl;
 
     for (int i = 0; i < m_vertices.size(); ++i) {
         for (int j = 0; j < m_vertices.size(); ++j) {

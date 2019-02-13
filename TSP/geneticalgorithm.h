@@ -32,6 +32,7 @@ private: // member functions
     QPair<QVector<int>, QVector<int>> crossover(const QVector<int> &p1, const QVector<int> &p2);
 
     QVector<int> createChild(int pos1, int pos2, int size, const QVector<int> &p1, const QVector<int> &p2);
+    Phenotype pickOneTournament(const QVector<Phenotype> &pop);
 
 private:
     QVector<QVector<int>> m_weights;
@@ -41,6 +42,7 @@ private:
     int m_numOfIters;
     int m_populationSize;
     double m_mutationRate;
+    int m_tournamentK;
 
 };
 
