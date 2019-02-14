@@ -4,13 +4,15 @@
 #include <QString>
 #include <QVector>
 
+#include "tsp.h"
+
 // struct that represents potential solutions
 struct Phenotype {
     QVector<int> chromosome;
     int fit;
 };
 
-class GeneticAlgorithm
+class GeneticAlgorithm : public TSP
 {
 public:
     GeneticAlgorithm(QString fileName);
@@ -22,7 +24,7 @@ public:
 
 private: // member functions
     bool stopCondition(int i);
-    int fitness(const QVector<int> &chromo);
+//    int fitness(const QVector<int> &chromo); fitness will be 'evaluatePath' from TSP
 
     QVector<Phenotype> initialPopulation();
     QVector<Phenotype> selection(const QVector<Phenotype> &population);
@@ -35,15 +37,11 @@ private: // member functions
     Phenotype pickOneTournament(const QVector<Phenotype> &pop);
 
 private:
-    QVector<QVector<int>> m_weights;
-    int m_length;
-
     Phenotype m_best;
     int m_numOfIters;
     int m_populationSize;
     double m_mutationRate;
     int m_tournamentK;
-
 };
 
 #endif // GENETICALGORITHM_H

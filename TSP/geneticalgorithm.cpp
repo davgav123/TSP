@@ -8,32 +8,14 @@
 #include <QDebug>
 
 GeneticAlgorithm::GeneticAlgorithm(QString fileName)
+    : TSP(fileName)
 {
-    QFile file(fileName);
-    file.open(QFile::ReadOnly);
-    if (! file.isOpen()) {
-        qDebug() << "opening failed!";
-        return ;
-    }
-
-    QTextStream in(&file);
-    in >> m_length;
-    m_weights.resize(m_length);
-    for (int i = 0; i < m_weights.size(); ++i) {
-        m_weights[i].resize(m_length);
-        for (int j = 0; j < m_weights.size(); ++j) {
-            in >> m_weights[i][j];
-        }
-    }
-
-    file.close();
-
     // initialize parameters for genetic algorithm
-    m_populationSize = 26;
+    m_populationSize = 30;
     m_mutationRate = 0.05;
     m_tournamentK = m_populationSize / 2;
 
-    m_numOfIters = 700;
+    m_numOfIters = 800;
 }
 
 void GeneticAlgorithm::optimize()
@@ -73,29 +55,17 @@ bool GeneticAlgorithm::stopCondition(int i)
     return false;
 }
 
-int GeneticAlgorithm::fitness(const QVector<int> &chromo)
-{
-    int distance = 0;
-    for (int i = 1; i < chromo.size(); ++i) {
-        distance += m_weights[chromo[i-1]][chromo[i]];
-    }
-    // add the distance between last and first vertex
-    distance += m_weights[chromo[chromo.size()-1]][chromo[0]];
-
-    return distance;
-}
-
 QVector<Phenotype> GeneticAlgorithm::initialPopulation()
 {
     QVector<Phenotype> pop(m_populationSize);
 
     auto rng = std::default_random_engine{};
     for (int i = 0; i < m_populationSize; ++i) {
-        pop[i].chromosome.resize(m_length);
+        pop[i].chromosome.resize(m_numOfVertices);
         std::iota(pop[i].chromosome.begin(), pop[i].chromosome.end(), 0);
         std::shuffle(pop[i].chromosome.begin(), pop[i].chromosome.end(), rng);
 
-        pop[i].fit = fitness(pop[i].chromosome);
+        pop[i].fit = evaluatePath(pop[i].chromosome);
     }
 
     return pop;
@@ -127,6 +97,7 @@ Phenotype GeneticAlgorithm::pickOneTournament(const QVector<Phenotype> &pop)
 QVector<Phenotype> GeneticAlgorithm::createGeneration(const QVector<Phenotype> &forReproduction)
 {
     QVector<Phenotype> newPopulation(m_populationSize);
+    // elitism, best path will be in next generation
     newPopulation[0] = m_best;
     newPopulation[1] = m_best;
     for (int i = 2; i < m_populationSize; i=i+2) {
@@ -135,11 +106,12 @@ QVector<Phenotype> GeneticAlgorithm::createGeneration(const QVector<Phenotype> &
 
         QPair<QVector<int>, QVector<int>> children =
                 crossover(forReproduction[parentPos1].chromosome, forReproduction[parentPos2].chromosome);
+
         mutation(children.first);
         mutation(children.second);
 
-        newPopulation[i] = {children.first, fitness(children.first)};
-        newPopulation[i+1] = {children.second, fitness(children.second)};
+        newPopulation[i] = {children.first, evaluatePath(children.first)};
+        newPopulation[i+1] = {children.second, evaluatePath(children.second)};
     }
 
     return newPopulation;

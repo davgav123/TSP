@@ -11,6 +11,7 @@
 #include <QFont>
 
 #include "window.h"
+#include "tsp.h"
 #include "bruteforce.h"
 #include "geneticalgorithm.h"
 

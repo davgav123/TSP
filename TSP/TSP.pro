@@ -28,12 +28,14 @@ SOURCES += \
         main.cpp \
     window.cpp \
     bruteforce.cpp \
-    geneticalgorithm.cpp
+    geneticalgorithm.cpp \
+    tsp.cpp
 
 HEADERS += \
     window.h \
     bruteforce.h \
-    geneticalgorithm.h
+    geneticalgorithm.h \
+    tsp.h
 
 FORMS +=
 
