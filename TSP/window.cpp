@@ -106,7 +106,41 @@ void Window::solve()
     qDebug() << "solving...";
     startBtn->setDisabled(true);
 
-    // brute force -------------------------------
+    solveBruteForce();
+
+    solveOptimization();
+}
+
+void Window::solveOptimization()
+{
+    GeneticAlgorithm ga("../TSP/adjacencyMatrix.txt");
+
+    QTime gaTimer;
+    gaTimer.start();
+    ga.optimize();
+    int gaElapsedTimeMS = gaTimer.elapsed();
+
+    QVector<int> bestPath = ga.bestPath();
+    int bestDist = ga.minDistance();
+
+    // color the path in yellow
+    QPen yellow(Qt::yellow, 3);
+    drawPath(bestPath, yellow);
+
+    // informations about genetic algorithm solution
+    QGraphicsTextItem *txtGenAlg = m_scene->addText(
+                "GeneticAlgorithm: shortest path is " + QString::number(bestDist) +
+                ". Time: " + QString::number(gaElapsedTimeMS) + " ms");
+    txtGenAlg->setPos(10, 600);
+
+    // set font
+    QFont f;
+    f.setPointSize(13);
+    txtGenAlg->setFont(f);
+}
+
+void Window::solveBruteForce()
+{
     BruteForce bf("../TSP/adjacencyMatrix.txt");
     QTime bfTimer;
     bfTimer.start();
@@ -130,29 +164,8 @@ void Window::solve()
     QFont f;
     f.setPointSize(13);
     txtBruteForce->setFont(f);
-
-    // genetic algorithm -------------------------------
-    GeneticAlgorithm ga("../TSP/adjacencyMatrix.txt");
-
-    QTime gaTimer;
-    gaTimer.start();
-    ga.optimize();
-    int gaElapsedTimeMS = gaTimer.elapsed();
-
-    bestPath = ga.bestPath();
-    bestDist = ga.minDistance();
-
-    // color the path in blue
-    QPen blue(Qt::yellow, 3);
-    drawPath(bestPath, blue);
-
-    // informations about genetic algorithm solution
-    QGraphicsTextItem *txtGenAlg = m_scene->addText(
-                "GeneticAlgorithm: shortest path is " + QString::number(bestDist) +
-                ". Time: " + QString::number(gaElapsedTimeMS) + " ms");
-    txtGenAlg->setPos(10, 600);
-    txtGenAlg->setFont(f);
 }
+
 
 void Window::generateGraph()
 {

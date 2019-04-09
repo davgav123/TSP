@@ -10,7 +10,7 @@ TSP::TSP(QString fileName)
     QFile file(fileName);
     file.open(QFile::ReadOnly);
     if (! file.isOpen()) {
-        qDebug() << "opening failed!";
+        qDebug() << "file " + fileName + " does not exist!";
         return ;
     }
 

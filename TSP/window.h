@@ -28,6 +28,9 @@ private: // member functions
     void drawVertices();
     void drawPath(QVector<int> path, QPen pen);
 
+    void solveBruteForce();
+    void solveOptimization();
+
 private:
     QGraphicsScene *m_scene;
 
