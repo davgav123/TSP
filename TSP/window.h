@@ -8,6 +8,7 @@
 #include <QPoint>
 #include <QPen>
 #include <QSpinBox>
+#include <QDir>
 
 class Window : public QGraphicsView
 {
@@ -36,6 +37,8 @@ private:
 
     QVector<QPoint> m_vertices;
     int m_numOfVertices;
+
+    QDir m_adjMatrixFilePath;
 
     // widgets
     QPushButton *startBtn;

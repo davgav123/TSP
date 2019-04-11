@@ -18,6 +18,7 @@
 #include <QDebug>
 
 Window::Window()
+    : m_adjMatrixFilePath("../TSP/adjacencyMatrix.txt")
 {
     // create scene
     m_scene = new QGraphicsScene(this);
@@ -113,7 +114,7 @@ void Window::solve()
 
 void Window::solveOptimization()
 {
-    GeneticAlgorithm ga("../TSP/adjacencyMatrix.txt");
+    GeneticAlgorithm ga(m_adjMatrixFilePath.path());
 
     QTime gaTimer;
     gaTimer.start();
@@ -141,7 +142,7 @@ void Window::solveOptimization()
 
 void Window::solveBruteForce()
 {
-    BruteForce bf("../TSP/adjacencyMatrix.txt");
+    BruteForce bf(m_adjMatrixFilePath.path());
     QTime bfTimer;
     bfTimer.start();
     bf.solve();
@@ -219,12 +220,12 @@ void Window::generatePositions()
 void Window::drawEdges()
 {
     // also, here we will create text file with adjacency matrix
-    QFile file(QString("../TSP/adjacencyMatrix.txt"));
+    QFile file(m_adjMatrixFilePath.path());
     file.open(QFile::WriteOnly);
 
     if (! file.isOpen()) {
         qDebug() << "failed to open adjacency matrix file...";
-        QApplication::exit(); // is exit really needed here??
+        QApplication::exit();
     }
 
     QTextStream output(&file);
@@ -236,7 +237,7 @@ void Window::drawEdges()
                 m_scene->addLine(m_vertices[i].x(), m_vertices[i].y(),
                                  m_vertices[j].x(), m_vertices[j].y());
 
-            output << int(qRound(QLineF(m_vertices[i], m_vertices[j]).length() / 10)) << " ";
+            output << int(qRound(QLineF(m_vertices[i], m_vertices[j]).length())) << " ";
         }
 
         output << endl;
