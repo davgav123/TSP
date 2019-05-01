@@ -11,11 +11,11 @@ GeneticAlgorithm::GeneticAlgorithm(QString fileName)
     : TSP(fileName)
 {
     // initialize parameters for genetic algorithm
-    m_populationSize = 30;
+    m_populationSize = 36; // should be an even number
     m_mutationRate = 0.05;
     m_tournamentK = m_populationSize / 2;
 
-    m_numOfIters = 800;
+    m_numOfIters = 850;
 }
 
 void GeneticAlgorithm::optimize()
