@@ -18,7 +18,7 @@
 #include <QDebug>
 
 Window::Window()
-    : m_adjMatrixFilePath("../TSP/adjacencyMatrix.txt")
+    : m_adjMatrixFilePath("./adjacencyMatrix.txt")
 {
     // create scene
     m_scene = new QGraphicsScene(this);

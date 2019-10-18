@@ -1,6 +1,6 @@
 # TSP
 
-Written in Qt
+Written in Qt Creator
 
 ## How to use:
 
@@ -17,3 +17,4 @@ Both solutions will be shown to the user.
 
     Qt5
     c++11
+
